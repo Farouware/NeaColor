@@ -1,0 +1,8 @@
+@font-face{
+    font-family: DelaGothicOne;
+    src: url('DelaGothicOne.ttf') format('truetype');
+}
+*{
+    margin: 0;
+    padding: 0;
+}
