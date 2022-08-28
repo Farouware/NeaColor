@@ -59,6 +59,18 @@ $con = mysqli_connect($host, $user, $pass, $db);
                 if( $modulo=="factura" ){
                     include_once "factura.php";
                 }
+                if( $modulo=="blogs" ){
+                    include_once "blogs.php";
+                }
+                if( $modulo=="nosotros" ){
+                    include_once "nosotros.php";
+                }
+                if( $modulo=="contacto" ){
+                    include_once "contacto.php";
+                }
+                if( $modulo=="historial" ){
+                    include_once "historial.php";
+                }
                 include_once "footer.php";
                 ?>
             </div>
