@@ -71,6 +71,9 @@ $con = mysqli_connect($host, $user, $pass, $db);
                 if( $modulo=="historial" ){
                     include_once "historial.php";
                 }
+                if( $modulo=="producto"){
+                    include_once "producto.php";
+                }
                 include_once "footer.php";
                 ?>
             </div>
