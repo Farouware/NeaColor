@@ -1,24 +1,6 @@
 <?php
 include_once "db_ecommerce.php";
 $con = mysqli_connect($host, $user, $pass, $db);
-if(isset($_REQUEST['idBorrar'])){
-    $id= mysqli_real_escape_string($con,$_REQUEST['idBorrar']??'');
-    $query="DELETE from productos  where id='".$id."';";
-    $res=mysqli_query($con,$query);
-    if($res){
-        ?>
-        <div class="alert alert-warning float-right" role="alert">
-            Producto borrado con exito
-        </div>
-        <?php
-    }else{
-        ?>
-        <div class="alert alert-danger float-right" role="alert">
-            Error al borrar <?php echo mysqli_error($con); ?>
-        </div>
-        <?php
-    }
-}
   ?>
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">

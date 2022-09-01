@@ -3,14 +3,14 @@
 <?php
 session_start();
 session_regenerate_id(true);
-if( isset($_REQUEST['sesion']) && $_REQUEST['sesion']=="cerrar" ){
+if (isset($_REQUEST['sesion']) && $_REQUEST['sesion'] == "cerrar") {
   session_destroy();
   header("location: index.php");
 }
 if (isset($_SESSION['id']) == false) {
   header("location: index.php");
 }
-$modulo=$_REQUEST['modulo']??'';
+$modulo = $_REQUEST['modulo'] ?? '';
 ?>
 
 <head>
@@ -41,7 +41,7 @@ $modulo=$_REQUEST['modulo']??'';
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
   <!-- DataTables -->
   <!-- <link rel="stylesheet" href="plugins/datatables-bs4/css/dataTables.bootstrap4.css"> -->
-  
+
 
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
@@ -67,14 +67,14 @@ $modulo=$_REQUEST['modulo']??'';
       <!-- Right navbar links -->
       <ul class="navbar-nav ml-auto">
         <!-- Messages Dropdown Menu -->
-        
-          <a class="nav-link" href="panel.php?modulo=editarUsuario&id=<?php echo $_SESSION['id']; ?>">
-            <i class="far fa-user"></i>
-          </a>
-          <a class="nav-link text-danger" href="panel.php?modulo=&sesion=cerrar" title="Cerrar sesion" >
-            <i class="fas fa-door-closed    "></i>
-          </a>
-        
+
+        <a class="nav-link" href="panel.php?modulo=editarUsuario&id=<?php echo $_SESSION['id']; ?>">
+          <i class="far fa-user"></i>
+        </a>
+        <a class="nav-link text-danger" href="panel.php?modulo=&sesion=cerrar" title="Cerrar sesion">
+          <i class="fas fa-door-closed    "></i>
+        </a>
+
       </ul>
     </nav>
     <!-- /.navbar -->
@@ -110,25 +110,25 @@ $modulo=$_REQUEST['modulo']??'';
               </a>
               <ul class="nav nav-treeview">
                 <li class="nav-item">
-                  <a href="panel.php?modulo=estadisticas" class="nav-link <?php echo ($modulo=="estadisticas" || $modulo=="" )?" active ":" "; ?>">
+                  <a href="panel.php?modulo=estadisticas" class="nav-link <?php echo ($modulo == "estadisticas" || $modulo == "") ? " active " : " "; ?>">
                     <i class="fas fa-chart-bar  nav-icon  "></i>
                     <p>Estadisticas</p>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="panel.php?modulo=usuarios" class="nav-link <?php echo ($modulo=="usuarios" || $modulo=="crearUsuario" || $modulo=="editarUsuario" )?" active ":" "; ?>">
+                  <a href="panel.php?modulo=usuarios" class="nav-link <?php echo ($modulo == "usuarios" || $modulo == "crearUsuario" || $modulo == "editarUsuario") ? " active " : " "; ?>">
                     <i class="far fa-user nav-icon"></i>
                     <p>Usuarios</p>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="panel.php?modulo=productos" class="nav-link <?php echo ($modulo=="productos" )?" active ":" "; ?>">
+                  <a href="panel.php?modulo=productos" class="nav-link <?php echo ($modulo == "productos") ? " active " : " "; ?>">
                     <i class="fa fa-shopping-bag nav-icon" aria-hidden="true"></i>
                     <p>Productos</p>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="panel.php?modulo=ventas" class="nav-link <?php echo ($modulo=="ventas" )?" active ":" "; ?>">
+                  <a href="panel.php?modulo=ventas" class="nav-link <?php echo ($modulo == "ventas") ? " active " : " "; ?>">
                     <i class="fa fa-table nav-icon" aria-hidden="true"></i>
                     <p>Ventas</p>
                   </a>
@@ -140,38 +140,38 @@ $modulo=$_REQUEST['modulo']??'';
       <!-- /.sidebar -->
     </aside>
     <?php
-    if(isset($_REQUEST['mensaje'])){
+    if (isset($_REQUEST['mensaje'])) {
     ?>
-    <div class="alert alert-primary alert-dismissible fade show float-right" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-        <span class="sr-only">Close</span>
-      </button>
-      <?php echo $_REQUEST['mensaje'] ?>
-    </div>
+      <div class="alert alert-primary alert-dismissible fade show float-right" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <?php echo $_REQUEST['mensaje'] ?>
+      </div>
     <?php
     }
-      if($modulo=="estadisticas" || $modulo==""){
-        include_once "estadisticas.php";
-      }
-      if($modulo=="usuarios"){
-        include_once "usuarios.php";
-      }
-      if($modulo=="productos"){
-        include_once "productos.php";
-      }
-      if($modulo=="ventas"){
-        include_once "ventas.php";
-      }
-      if($modulo=="crearUsuario"){
-        include_once "crearUsuario.php";
-      }
-      if($modulo=="editarUsuario"){
-        include_once "editarUsuario.php";
-      }
-      if($modulo=="productos"){
-        include_once "productos.php";
-      }
+    if ($modulo == "estadisticas" || $modulo == "") {
+      include_once "estadisticas.php";
+    }
+    if ($modulo == "usuarios") {
+      include_once "usuarios.php";
+    }
+    if ($modulo == "productos") {
+      include_once "productos.php";
+    }
+    if ($modulo == "ventas") {
+      include_once "ventas.php";
+    }
+    if ($modulo == "crearUsuario") {
+      include_once "crearUsuario.php";
+    }
+    if ($modulo == "editarUsuario") {
+      include_once "editarUsuario.php";
+    }
+    if ($modulo == "productos") {
+      include_once "productos.php";
+    }
     ?>
   </div>
   <!-- ./wrapper -->
@@ -212,82 +212,95 @@ $modulo=$_REQUEST['modulo']??'';
   <script src="dist/js/demo.js"></script>
   <!-- DataTables -->
 
-<!-- <script src="plugins/datatables/jquery.dataTables.js"></script>
+  <!-- <script src="plugins/datatables/jquery.dataTables.js"></script>
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.js"></script> -->
 
-<script>
-  $(function () {
-    $('#example2').DataTable({
-      "paging": true,
-      "lengthChange": false,
-      "searching": false,
-      "ordering": true,
-      "info": true,
-      "autoWidth": false,
-    });
-    editor = new $.fn.dataTable.Editor( {
+  <script>
+    $(function() {
+      $('#example2').DataTable({
+        "paging": true,
+        "lengthChange": false,
+        "searching": false,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false,
+      });
+      editor = new $.fn.dataTable.Editor({
         ajax: "controllers/productos.php",
         table: "#tablaProductos",
-        fields: [ {
-                label: "Nombre:",
-                name: "nombre"
-            }, {
-                label: "Precio:",
-                name: "precio"
-            }, {
-                label: "Existencia:",
-                name: "existencia"
-            }, {
-                label: "Imagenes:",
-                name: "files[].id",
-                type: "uploadMany",
-                display: function ( fileId, counter ) {
-                    return '<img src="'+editor.file( 'files', fileId ).web_path+'"/>';
-                },
-                noFileText: 'No hay imagenes'
-            }
-        ]
-    } );
- 
-    $('#tablaProductos').DataTable( {
+        fields: [{
+          label: "Nombre:",
+          name: "nombre"
+        }, {
+          label: "Precio:",
+          name: "precio"
+        }, {
+          label: "Existencia:",
+          name: "existencia"
+        }, {
+          label: "Imagenes:",
+          name: "files[].id",
+          type: "uploadMany",
+          display: function(fileId, counter) {
+            return '<img src="' + editor.file('files', fileId).web_path + '"/>';
+          },
+          noFileText: 'No hay imagenes'
+        }]
+      });
+
+      $('#tablaProductos').DataTable({
         dom: "Bfrtip",
         ajax: "controllers/productos.php",
-        columns: [
-            { data: "nombre" },
-            { data: "precio", render: $.fn.dataTable.render.number( ',', '.', 0, '$' ) },
-            { data: "existencia" },
-            {
-                data: "files",
-                render: function ( d ) {
-                    return d.length ?
-                        d.length+' imagen(es)' :
-                        'No hay imagen(es)';
-                },
-                title: "Imagen"
-            }
+        columns: [{
+            data: "nombre"
+          },
+          {
+            data: "precio",
+            render: $.fn.dataTable.render.number(',', '.', 0, '$')
+          },
+          {
+            data: "existencia"
+          },
+          {
+            data: "files",
+            render: function(d) {
+              return d.length ?
+                d.length + ' imagen(es)' :
+                'No hay imagen(es)';
+            },
+            title: "Imagen"
+          }
         ],
         select: true,
-        buttons: [
-            { extend: "create", editor: editor },
-            { extend: "edit",   editor: editor },
-            { extend: "remove", editor: editor }
+        buttons: [{
+            extend: "create",
+            editor: editor
+          },
+          {
+            extend: "edit",
+            editor: editor
+          },
+          {
+            extend: "remove",
+            editor: editor
+          }
         ]
-    } );
-  });
-</script>
-<script>
-  $(document).ready(function () {
-    $(".borrar").click(function (e) { 
-      e.preventDefault();
-      var res=confirm("Realmente te quieres cargar (borrar) ese usuario?");
-      if(res==true){
-        var link=$(this).attr("href");
-        window.location=link;
-      }
-      
+      });
     });
-  });
-</script>
+  </script>
+  <script>
+    $(document).ready(function() {
+      $(".borrar").click(function(e) {
+        e.preventDefault();
+        var res = confirm("Realmente te quieres cargar (borrar) ese usuario?");
+        if (res == true) {
+          var link = $(this).attr("href");
+          window.location = link;
+        }
+
+      });
+    });
+  </script>
 </body>
 
 </html>

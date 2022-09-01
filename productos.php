@@ -182,7 +182,7 @@
 
     </body>
 </html>
-=======
+
 <div class="row mt-1">
     <?php
     $where = " where 1=1 ";
@@ -284,4 +284,3 @@ if ($totalPaginas > 0) {
 <?php
 }
 ?>
->>>>>>> 942a682617d1f7e8d2e66d79dee136e89e843967
