@@ -21,31 +21,31 @@ use DataTables;
  * file upload information, specifically how the file should be recorded on
  * the server (database and file system).
  *
- * An instance of this class is attached to a field using the {@link
- * Field.upload} method. When Editor detects a file upload for that file the
+ * An instance of this class is attached to a field using the {@see
+ * Field->upload()} method. When Editor detects a file upload for that file the
  * information provided for this instance is executed.
  *
- * The configuration is primarily driven through the {@link db} and {@link
- * action} methods:
+ * The configuration is primarily driven through the {@see Upload->db()} and
+ * {@see Upload->action()} methods:
  *
- * * {@link db} Describes how information about the uploaded file is to be
+ * * {@see Upload->db()} Describes how information about the uploaded file is to be
  *   stored on the database.
- * * {@link action} Describes where the file should be stored on the file system
+ * * {@see Upload->action()} Describes where the file should be stored on the file system
  *   and provides the option of specifying a custom action when a file is
  *   uploaded.
  *
  * Both methods are optional - you can store the file on the server using the
- * {@link db} method only if you want to store the file in the database, or if
- * you don't want to store relational data on the database us only {@link
- * action}. However, the majority of the time it is best to use both - store
- * information about the file on the database for fast retrieval (using a {@link
- * Editor.leftJoin()} for example) and the file on the file system for direct
+ * {@see Upload->db()} method only if you want to store the file in the database, or if
+ * you don't want to store relational data on the database us only 
+ * {@see Upload->action()}. However,  the majority of the time it is best to use 
+ * both - store information about the file on the database for fast retrieval (using a
+ * {@see Editor->leftJoin()} for example) and the file on the file system for direct
  * web access.
  *
  * @example
  * 	 Store information about a file in a table called `files` and the actual
  * 	 file in an `uploads` directory.
- *   <code>
+ *   ```
  *		Field::inst( 'imageId' )
  *			->upload(
  *				Upload::inst( $_SERVER['DOCUMENT_ROOT'].'/uploads/__ID__.__EXTN__' )
@@ -57,12 +57,12 @@ use DataTables;
  *					) )
  *					->allowedExtensions( array( 'png', 'jpg' ), "Please upload an image file" )
  *			)
- *	</code>
+ *	```
  *
  * @example
  * 	 As above, but with PHP 5.4 (which allows chaining from new instances of a
  * 	 class)
- *   <code>
+ *   ```
  *		newField( 'imageId' )
  *			->upload(
  *				new Upload( $_SERVER['DOCUMENT_ROOT'].'/uploads/__ID__.__EXTN__' )
@@ -74,7 +74,7 @@ use DataTables;
  *					) )
  *					->allowedExtensions( array( 'png', 'jpg' ), "Please upload an image file" )
  *			)
- *	</code>
+ *	```
  */
 class Upload extends DataTables\Ext {
 	/*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
@@ -131,6 +131,7 @@ class Upload extends DataTables\Ext {
 	private $_extns = null;
 	private $_extnError = null;
 	private $_error = null;
+	private $_mode = 0644;
 	private $_validators = array();
 	private $_where = array();
 
@@ -142,7 +143,7 @@ class Upload extends DataTables\Ext {
 	/**
 	 * Upload instance constructor
 	 * @param string|callable $action Action to take on upload - this is applied
-	 *     directly to {@link action}.
+	 *     directly to {@see Upload->action()}.
 	 */
 	function __construct( $action=null )
 	{
@@ -164,7 +165,7 @@ class Upload extends DataTables\Ext {
 	 *   which are replaced by the script dependent on the uploaded file:
 	 *   * `__EXTN__` - the file extension
 	 *   * `__NAME__` - the uploaded file's name (including the extension)
-	 *   * `__ID__` - Database primary key value if the {@link db} method is
+	 *   * `__ID__` - Database primary key value if the {@see Upload->db()} method is
 	 *     used.
 	 * * A closure - if a function is given the responsibility of what to do
 	 *   with the uploaded file is transferred to this function. That will
@@ -254,6 +255,17 @@ class Upload extends DataTables\Ext {
 
 		$this->_dbCleanCallback = $callback;
 		$this->_dbCleanTableField = $tableField;
+
+		return $this;
+	}
+
+
+	/**
+	 * Set the permissions on the file after it has been uploaded using
+	 * chmod.
+	 */
+	public function mode( $m ) {
+		$this->_mode = $m;
 
 		return $this;
 	}
@@ -419,7 +431,7 @@ class Upload extends DataTables\Ext {
 				// We can't know what the path is, if it has moved into place
 				// by an external function - throw an error if this does happen
 				if ( ! is_string( $this->_action ) &&
-					 ($prop === self::DB_SYSTEM_PATH || $prop === self::DB_WEB_PATH )
+						($prop === self::DB_SYSTEM_PATH || $prop === self::DB_WEB_PATH )
 				) {
 					$this->_error = "Cannot set path information in database ".
 						"if a custom method is used to save the file.";
@@ -429,11 +441,11 @@ class Upload extends DataTables\Ext {
 			}
 
 			// Commit to the database
-			$id = $this->_dbExec( $editor->db() );
+			$id = $this->_dbExec( $upload, $editor->db() );
 		}
 
 		// Perform file system actions
-		return $this->_actionExec( $id );
+		return $this->_actionExec( $upload, $id );
 	}
 
 
@@ -469,13 +481,12 @@ class Upload extends DataTables\Ext {
 	/**
 	 * Execute the configured action for the upload
 	 *
-	 * @param  int $id Primary key value
-	 * @return int File identifier - typically the primary key
+	 * @param  array $upload $_FILES['upload']
+	 * @param  int   $id     Primary key value
+	 * @return int   File    identifier - typically the primary key
 	 */
-	private function _actionExec ( $id )
+	private function _actionExec ( $upload, $id )
 	{
-		$upload = $_FILES['upload'];
-
 		if ( ! is_string( $this->_action ) ) {
 			// Custom function
 			$action = $this->_action;
@@ -485,11 +496,15 @@ class Upload extends DataTables\Ext {
 		// Default action - move the file to the location specified by the
 		// action string
 		$to  = $this->_path( $upload['name'], $id );
-		$res = move_uploaded_file( $upload['tmp_name'], $to );
+		$res = rename( $upload['tmp_name'], $to );
 
 		if ( $res === false ) {
 			$this->_error = "An error occurred while moving the uploaded file.";
 			return false;
+		}
+
+		if ($this->_mode) {
+			chmod($to, $this->_mode);
 		}
 
 		return $id !== null ?
@@ -576,12 +591,12 @@ class Upload extends DataTables\Ext {
 	/**
 	 * Add a record to the database for a newly uploaded file
 	 *
-	 * @param  \DataTables\Database $db Database instance
+	 * @param  array                $upload $_FILES['upload']
+	 * @param  \DataTables\Database $db     Database instance
 	 * @return int Primary key value for the newly uploaded file
 	 */
-	private function _dbExec ( $db )
+	private function _dbExec ( $upload, $db )
 	{
-		$upload = $_FILES['upload'];
 		$pathFields = array();
 
 		// Insert the details requested, for the columns requested

@@ -19,10 +19,10 @@ if (!defined('DATATABLES')) exit();
 //
 
 /**
- * Result object given by a {@link Query} performed on a database.
+ * Result object given by a {@see Query} performed on a database.
  * 
  * The typical pattern for using this class is to receive an instance of it as a
- * result of using the {@link Database} and {@link Query} class methods that
+ * result of using the {@see Database} and {@see Query} class methods that
  * return a result. This class should not be initialised independently.
  *
  * Note that this is a stub class that a driver will extend and complete as
@@ -30,7 +30,7 @@ if (!defined('DATATABLES')) exit();
  * additional methods, but this is discouraged to ensure that the API is the
  * same for all database types.
  */
-class Result {
+abstract class Result {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 * Public methods
 	 */
@@ -39,10 +39,7 @@ class Result {
 	 * Count the number of rows in the result set.
 	 *  @return int
 	 */
-	public function count ()
-	{
-		return 0;
-	}
+	abstract public function count ();
 
 
 	/**
@@ -50,10 +47,7 @@ class Result {
 	 *  @param int PDO row fetch style - PDO::FETCH_ASSOC is the default
 	 *  @return array
 	 */
-	public function fetch ( $fetchType=\PDO::FETCH_ASSOC )
-	{
-		return array();
-	}
+	abstract public function fetch ( $fetchType=\PDO::FETCH_ASSOC );
 
 
 	/**
@@ -61,20 +55,14 @@ class Result {
 	 *  @param int PDO row fetch style - PDO::FETCH_ASSOC is the default
 	 *  @return array
 	 */
-	public function fetchAll ( $fetchType=\PDO::FETCH_ASSOC )
-	{
-		return array();
-	}
+	abstract public function fetchAll ( $fetchType=\PDO::FETCH_ASSOC );
 
 
 	/**
 	 * After an INSERT query, get the ID that was inserted.
 	 *  @return int
 	 */
-	public function insertId ()
-	{
-		return 0;
-	}
+	abstract public function insertId ();
 };
 
 

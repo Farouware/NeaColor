@@ -18,6 +18,7 @@ use
 	DataTables\Editor,
 	DataTables\Editor\Options,
 	DataTables\Editor\Join;
+use DataTables\HtmLawed\Htmlaw;
 
 
 /**
@@ -28,38 +29,38 @@ use
  * Editor what table column to use, how to format the data and if you want
  * to read and/or write this column.
  *
- * Field instances are used with the {@link Editor::field} and 
- * {@link Join::field} methods to describe what fields should be interacted
+ * Field instances are used with the {@see Editor->field()} and 
+ * {@see Join->field()} methods to describe what fields should be interacted
  * with by the editable table.
  *
  *  @example
  *    Simply get a column with the name "city". No validation is performed.
- *    <code>
+ *    ```php
  *      Field::inst( 'city' )
- *    </code>
+ *    ```
  *
  *  @example
  *    Get a column with the name "first_name" - when edited a value must
- *    be given due to the "required" validation from the {@link Validate} class.
- *    <code>
+ *    be given due to the "required" validation from the {@see Validate} class.
+ *    ```php
  *      Field::inst( 'first_name' )->validator( 'Validate::required' )
- *    </code>
+ *    ```
  *
  *  @example
  *    Working with a date field, which is validated, and also has *get* and
  *    *set* formatters.
- *    <code>
+ *    ```php
  *      Field::inst( 'registered_date' )
  *          ->validator( 'Validate::dateFormat', 'D, d M y' )
  *          ->getFormatter( 'Format::date_sql_to_format', 'D, d M y' )
  *          ->setFormatter( 'Format::date_format_to_sql', 'D, d M y' )
- *    </code>
+ *    ```
  *
  *  @example
  *    Using an alias in the first parameter
- *    <code>
+ *    ```php
  *      Field::inst( 'name.first as first_name' )
- *    </code>
+ *    ```
  */
 class Field extends DataTables\Ext {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -128,8 +129,20 @@ class Field extends DataTables\Ext {
 	/** @var Options */
 	private $_opts = null;
 
+	/** @var SearchPaneOptions */
+	private $_spopts = null;
+	
+	/** @var SearchBuilderOptions */
+	private $_sbopts = null;
+
 	/** @var callable */
 	private $_optsFn = null;
+
+	/** @var callable */
+	private $_spoptsFn = null;
+
+	/** @var callable */
+	private $_sboptsFn = null;
 
 	/** @var string */
 	private $_name = null;
@@ -226,7 +239,7 @@ class Field extends DataTables\Ext {
 	 * can be useful when, for example, working with dates and a particular format
 	 * is required on the client-side.
 	 *
-	 * Editor has a number of formatters available with the {@link Format} class
+	 * Editor has a number of formatters available with the {@see Format} class
 	 * which can be used directly with this method.
 	 *  @param callable|string $_ Value to set if using as a setter. Can be given as
 	 *    a closure function or a string with a reference to a function that will
@@ -339,6 +352,61 @@ class Field extends DataTables\Ext {
 		return $this;
 	}
 
+	/**
+	 * Get a list of values that can be used for the options list in SearchPanes
+	 * 
+	 * @param SearchPaneOptions|callable $spInput SearchPaneOptions instance or a closure function if providing a method
+	 * @return self
+	 */
+	public function searchPaneOptions ( $spInput=null )
+	{
+		if ( $spInput === null ) {
+			return $this->_spopts;
+		}
+
+		// Overloads for backwards compatibility
+		if ( is_a( $spInput, '\DataTables\Editor\SearchPaneOptions' ) ) {
+			// Options class
+			$this->_spoptsFn = null;
+			$this->_spopts = $spInput;
+		}
+		else if ( is_callable($spInput) && is_object($spInput) ) {
+			// Function
+			$this->_spopts = null;
+			$this->_spoptsFn = $spInput;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Get a list of values that can be used for the options list in SearchBuilder
+	 * 
+	 * @param SearchBuilderOptions|callable $sbInput SearchBuilderOptions instance or a closure function if providing a method
+	 * @return self
+	 */
+	public function searchBuilderOptions ( $sbInput=null )
+	{
+		if ( $sbInput === null ) {
+			return $this->_sbopts;
+		}
+
+		// Overloads for backwards compatibility
+		if ( is_a( $sbInput, '\DataTables\Editor\SearchBuilderOptions' ) ) {
+			// Options class
+			$this->_sboptsFn = null;
+			$this->_sbopts = $sbInput;
+		}
+		else if ( is_callable($sbInput) && is_object($sbInput) ) {
+			// Function
+			$this->_sbopts = null;
+			$this->_sboptsFn = $sbInput;
+		}
+
+		return $this;
+	}
+
+
 
 	/**
 	 * Get / set the 'set' property of the field.
@@ -381,7 +449,7 @@ class Field extends DataTables\Ext {
 	 * can be useful when, for example, working with dates and a particular format
 	 * is required on the client-side.
 	 *
-	 * Editor has a number of formatters available with the {@link Format} class
+	 * Editor has a number of formatters available with the {@see Format} class
 	 * which can be used directly with this method.
 	 *  @param callable|string $_ Value to set if using as a setter. Can be given as
 	 *    a closure function or a string with a reference to a function that will
@@ -439,7 +507,7 @@ class Field extends DataTables\Ext {
 	 * this method multiple times. For example, it would be possible to have a
 	 * 'required' validation and a 'maxLength' validation with multiple calls.
 	 * 
-	 * Editor has a number of validation available with the {@link Validate} class
+	 * Editor has a number of validation available with the {@see Validate} class
 	 * which can be used directly with this method.
 	 *  @param callable|string $_ Value to set if using as the validation method.
 	 *    Can be given as a closure function or a string with a reference to a 
@@ -563,7 +631,7 @@ class Field extends DataTables\Ext {
 	{
 		if ( $this->_optsFn ) {
 			$fn = $this->_optsFn;
-			return $fn();
+			return $fn($db);
 		}
 		else if ( $this->_opts ) {
 			return $this->_opts->exec( $db );
@@ -572,7 +640,57 @@ class Field extends DataTables\Ext {
 		return false;
 	}
 
+	/**
+	 * Execute the spopts to get the list of options for SearchPanes to return
+	 * to the client-side
+	 * 
+	 * @param DataTables\Field $field The field to retrieve the data from
+	 * @param DataTables\Editor $editor The editor instance
+	 * @param DataTables\DTRequest $http The http request sent to the server
+	 * @param DataTables\Field[] $fields All of the fields
+	 * @param any $leftJoin Info for a leftJoin if required
+	 * @return Promise<IOption[]> | boolean
+	 * @internal
+	 */
+	public function searchPaneOptionsExec ( $field, $editor, $http, $fields, $leftJoin)
+	{
+		if ( $this->_spoptsFn ) {
+			$fn = $this->_spoptsFn;
+			return $fn($editor->db(), $editor);
+		}
+		else if ( $this->_spopts ) {
+			return $this->_spopts->exec( $field, $editor, $http, $fields, $leftJoin );
+		}
 
+		return false;
+	}
+
+	/**
+	 * Execute the spopts to get the list of options for SearchBuilder to return
+	 * to the client-side
+	 * 
+	 * @param DataTables\Field $field The field to retrieve the data from
+	 * @param DataTables\Editor $editor The editor instance
+	 * @param DataTables\DTRequest $http The http request sent to the server
+	 * @param DataTables\Field[] $fields All of the fields
+	 * @param any $leftJoin Info for a leftJoin if required
+	 * @return Promise<IOption[]> | boolean
+	 * @internal
+	 */
+	public function searchBuilderOptionsExec ( $field, $editor, $http, $fields, $leftJoin)
+	{
+		if ( $this->_sboptsFn ) {
+			$fn = $this->_sboptsFn;
+			return $fn($editor->db(), $editor);
+		}
+		else if ( $this->_sbopts ) {
+			return $this->_sbopts->exec( $field, $editor, $http, $fields, $leftJoin );
+		}
+
+		return false;
+	}
+
+	
 	/**
 	 * Get the value of the field, taking into account if it is coming from the
 	 * DB or from a POST. If formatting has been specified for this field, it
@@ -607,7 +725,7 @@ class Field extends DataTables\Ext {
 		else {
 			// Sanity check that we aren't operating on a function
 			if ( strpos( $this->dbField(), '(' ) !== false ) {
-				throw new \Exception('Cannot set the value for an SQL function field. These fields are read only.');
+				throw new \Exception('Cannot set the value for an SQL function field. These fields are read only: ' . $this->name());
 			}
 
 			// Setting data, so using from the payload (POST usually) and thus
@@ -729,7 +847,7 @@ class Field extends DataTables\Ext {
 			foreach ( $val as $individual ) {
 				$res[] = $xss ?
 					$xss( $individual ) :
-					DataTables\Vendor\Htmlaw::filter( $individual );
+					Htmlaw::filter( $individual );
 			}
 
 			return $res;
@@ -737,7 +855,7 @@ class Field extends DataTables\Ext {
 
 		return $xss ?
 			$xss( $val ) :
-			DataTables\Vendor\Htmlaw::filter( $val );
+			Htmlaw::filter( $val );
 	}
 
 

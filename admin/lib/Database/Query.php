@@ -27,8 +27,8 @@ use
 /**
  * Perform an individual query on the database.
  * 
- * The typical pattern for using this class is through the {@link
- * \DataTables\Database::query} method (and it's 'select', etc short-cuts).
+ * The typical pattern for using this class is through the {@see
+ * \DataTables\Database->query()} method (and it's 'select', etc short-cuts).
  * Typically it would not be initialised directly.
  *
  * Note that this is a stub class that a driver will extend and complete as
@@ -36,7 +36,7 @@ use
  * additional methods, but this is discouraged to ensure that the API is the
  * same for all database types.
  */
-class Query {
+abstract class Query {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 * Constructor
 	 */
@@ -45,10 +45,10 @@ class Query {
 	 * Query instance constructor.
 	 *
 	 * Note that typically instances of this class will be automatically created
-	 * through the {@link \DataTables\Database::query} method.
+	 * through the {@see \DataTables\Database->query()} method.
 	 *  @param Database        $db    Database instance
 	 *  @param string          $type  Query type - 'select', 'insert', 'update' or 'delete'
-	 *  @param string|string[] $table Tables to operate on - see {@link table}.
+	 *  @param string|string[] $table Tables to operate on - see {@see Query->table()}.
 	 */
 	public function __construct( $dbHost, $type, $table=null )
 	{
@@ -120,6 +120,12 @@ class Query {
 	 * @var int
 	 * @internal
 	 */
+	protected $_group_by = null;
+
+	/**
+	 * @var int
+	 * @internal
+	 */
 	protected $_offset = null;
 
 	/**
@@ -173,10 +179,7 @@ class Query {
 	 *  @param string $db   Database name
 	 *  @return Query
 	 */
-	public static function connect ( $user, $pass='', $host='', $port='', $db='', $dsn='' )
-	{
-		return false;
-	}
+	abstract public static function connect ( $user, $pass='', $host='', $port='', $db='', $dsn='' );
 
 
 	/**
@@ -306,8 +309,7 @@ class Query {
 	/**
 	 * Get fields.
 	 *  @param string|string[] $get,... Fields to get - can be specified as
-	 *    individual fields, an array of fields, a string of comma separated
-	 *    fields or any combination of those.
+	 *    individual fields or an array of fields.
 	 *  @return self
 	 */
 	public function get ( $get )
@@ -326,6 +328,15 @@ class Query {
 					$this->get( $args[$i][$j] );
 				}
 			}
+			else if ( strpos($args[$i], ',') !== false && strpos($args[$i], '(') === false) {
+				// Comma delimited set of fields - legacy. Recommended that fields be split into
+				// an array on input
+				$a = explode(',', $args[$i]);
+
+				for ( $j=0 ; $j<count($a) ; $j++ ) {
+					$this->get( $a[$j] );
+				}
+			}
 			else {
 				$this->_field[] = trim( $args[$i] );
 			}
@@ -342,7 +353,7 @@ class Query {
 	 *  @param string $type      JOIN type
 	 *  @return self
 	 */
-	public function join ( $table, $condition, $type='' )
+	public function join ( $table, $condition, $type='', $bind=true )
 	{
 		// Tidy and check we know what the join type is
 		if ($type !== '') {
@@ -354,7 +365,7 @@ class Query {
 		}
 
 		// Protect the identifiers
-		if (preg_match('/([\w\.]+)([\W\s]+)(.+)/', $condition, $match))
+		if ($bind && preg_match('/([\w\.]+)([\W\s]+)(.+)/', $condition, $match))
 		{
 			$match[1] = $this->_protect_identifiers( $match[1] );
 			$match[3] = $this->_protect_identifiers( $match[3] );
@@ -376,6 +387,18 @@ class Query {
 	public function limit ( $lim )
 	{
 		$this->_limit = $lim;
+
+		return $this;
+	}
+
+	/**
+	 * Group the results by the values in a field
+	 * @param string The field of which the values are to be grouped
+	 * @return self
+	 */
+	public function group_by ( $group_by )
+	{
+		$this->_group_by = $group_by;
 
 		return $this;
 	}
@@ -539,14 +562,14 @@ class Query {
 	 *     The following will produce
 	 *     `'WHERE name='allan' AND ( location='Scotland' OR location='Canada' )`:
 	 *
-	 *     <code>
+	 *     ```php
 	 *       $query
 	 *         ->where( 'name', 'allan' )
 	 *         ->where( function ($q) {
 	 *           $q->where( 'location', 'Scotland' );
-	 *           $q->where( 'location', 'Canada' );
+	 *           $q->or_where( 'location', 'Canada' );
 	 *         } );
-	 *     </code>
+	 *     ```
 	 */
 	public function where ( $key, $value=null, $op="=", $bind=true )
 	{
@@ -651,12 +674,12 @@ class Query {
 	 *  @return self
 	 *
 	 *  @example
-	 *     <code>
+	 *     ```php
 	 *     $query->where_group( function ($q) {
 	 *       $q->where( 'location', 'Edinburgh' );
 	 *       $q->where( 'position', 'Manager' );
 	 *     } );
-	 *     </code>
+	 *     ```
 	 */
 	public function where_group ( $inOut, $op='AND' )
 	{
@@ -776,7 +799,7 @@ class Query {
 	/**
 	 * Create the LIMIT / OFFSET string
 	 *
-	 * MySQL and Postgres stylee - anything else can have the driver override
+	 * MySQL and Postgres style - anything else can have the driver override
 	 *  @return string
 	 *  @internal
 	 */
@@ -790,6 +813,23 @@ class Query {
 
 		if ( $this->_offset ) {
 			$out .= ' OFFSET '.$this->_offset;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Create the GROUP BY string
+	 * 
+	 * @return string
+	 * @internal
+	 */
+	protected function _build_group_by()
+	{
+		$out = '';
+
+		if ( $this->_group_by) {
+			$out .= ' GROUP BY '.$this->_group_by;
 		}
 
 		return $out;
@@ -936,8 +976,7 @@ class Query {
 	 *  @return Result
 	 *  @internal
 	 */
-	protected function _exec()
-	{}
+	abstract protected function _exec();
 
 	/**
 	 * Create an INSERT statement
@@ -965,8 +1004,7 @@ class Query {
 	 *  @return void
 	 *  @internal
 	 */
-	protected function _prepare( $sql )
-	{}
+	abstract protected function _prepare( $sql );
 
 	/**
 	 * Protect field names
@@ -987,17 +1025,23 @@ class Query {
 		$right = $idl[1];
 
 		// Dealing with a function or other expression? Just return immediately
-		if (strpos($identifier, '(') !== FALSE || strpos($identifier, '*') !== FALSE || strpos($identifier, ' ') !== FALSE)
+		if (strpos($identifier, '(') !== FALSE || strpos($identifier, '*') !== FALSE)
 		{
 			return $identifier;
 		}
 
 		// Going to be operating on the spaces in strings, to simplify the white-space
 		$identifier = preg_replace('/[\t ]+/', ' ', $identifier);
+		$identifier = str_replace(' as ', ' ', $identifier);
+
+		// If more that a single space, then return
+		if (substr_count($identifier, ' ') > 1) {
+			return $identifier;
+		}
 
 		// Find if our identifier has an alias, so we don't escape that
-		if ( strpos($identifier, ' as ') !== false ) {
-			$alias = strstr($identifier, ' as ');
+		if ( strpos($identifier, ' ') !== false ) {
+			$alias = strstr($identifier, ' ');
 			$identifier = substr($identifier, 0, - strlen($alias));
 		}
 		else {
@@ -1052,6 +1096,7 @@ class Query {
 			.'FROM '.$this->_build_table()
 			.$this->_build_join()
 			.$this->_build_where()
+			.$this->_build_group_by()
 			.$this->_build_order()
 			.$this->_build_limit()
 		);

@@ -26,12 +26,19 @@ Editor::inst( $db, 'audiobooks' )
 		Field::inst( 'readingOrder' )->validator( 'Validate::numeric' )
 	)
 	->on( 'preCreate', function ( $editor, $values ) {
-		// On create update all the other records to make room for our new one
-		$editor->db()
-			->query( 'update', 'audiobooks' )
-			->set( 'readingOrder', 'readingOrder+1', false )
-			->where( 'readingOrder', $values['readingOrder'], '>=' )
-			->exec();
+		if (! $values['readingOrder']) {
+			// If no value submitted, then use the max+1 as the new value
+			$next = $editor->db()->sql('select IFNULL(MAX(readingOrder)+1, 1) as next FROM audiobooks')->fetch();
+			$editor->field('readingOrder')->setValue($next['next']);
+		}
+		else {
+			// On create update all the other records to make room for our new one
+			$editor->db()
+				->query( 'update', 'audiobooks' )
+				->set( 'readingOrder', 'readingOrder+1', false )
+				->where( 'readingOrder', $values['readingOrder'], '>=' )
+				->exec();
+		}
 	} )
 	->on( 'preRemove', function ( $editor, $id, $values ) {
 		// On remove, the sequence needs to be updated to decrement all rows

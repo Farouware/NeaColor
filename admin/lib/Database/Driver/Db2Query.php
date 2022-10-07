@@ -44,14 +44,12 @@ class Db2Query extends Query {
 			$dsn  = isset( $opts['dsn'] ) ? $opts['dsn'] : '';
 		}
 
-		$connStr = 'DATABASE='.$db.';HOSTNAME='.$host;
-		if ( $port ) {
-			$connStr .= ';PORT='.$port;
-		}
-		$connStr .= ';UID='.$user.';PWD='.$pass.';AUTHENTICATION=server';
-
-//$conn = db2_connect( 'DATABASE=SAMPLE;HOSTNAME=localhost;PORT=50000;UID=db2inst1;PWD=mylifehasbeen;AUTHENTICATION=server', 'db2inst1', 'mylifehasbeen' );
-
+		// $connStr = 'DATABASE='.$db.';HOSTNAME='.$host;
+		// if ( $port ) {
+		// 	$connStr .= ';PORT='.$port;
+		// }
+		// $connStr .= ';UID='.$user.';PWD='.$pass.';AUTHENTICATION=server';
+		$connStr = $db;
 
 		$conn = db2_connect($connStr, $user, $pass);
 
@@ -134,7 +132,7 @@ class Db2Query extends Query {
         $res = db2_execute($stmt);
 
         if (! $res) {
-			throw 'DB2 SQL error = '.db2_stmt_error($this->_stmt);
+			throw new \Exception('DB2 SQL error = '.db2_stmt_error($this->_stmt));
 
             return false;
         }

@@ -47,5 +47,6 @@ Editor::inst( $db, 'datatables_demo' )
 			->getFormatter( Format::dateSqlToFormat( 'Y-m-d' ) )
 			->setFormatter( Format::dateFormatToSql('Y-m-d' ) )
 	)
+	->debug(true)
 	->process( $_POST )
 	->json();

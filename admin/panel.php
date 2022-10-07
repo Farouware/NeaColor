@@ -40,13 +40,14 @@ $modulo = $_REQUEST['modulo'] ?? '';
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
   <!-- DataTables -->
-  <!-- <link rel="stylesheet" href="plugins/datatables-bs4/css/dataTables.bootstrap4.css"> -->
+   <link rel="stylesheet" href="plugins/datatables-bs4/css/dataTables.bootstrap4.css"> 
 
 
 
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/select/1.4.0/css/select.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.2/css/dataTables.dateTime.min.css">
   <link rel="stylesheet" href="css/editor.dataTables.min.css">
 
 </head>
@@ -169,9 +170,6 @@ $modulo = $_REQUEST['modulo'] ?? '';
     if ($modulo == "editarUsuario") {
       include_once "editarUsuario.php";
     }
-    if ($modulo == "productos") {
-      include_once "productos.php";
-    }
     ?>
   </div>
   <!-- ./wrapper -->
@@ -212,8 +210,13 @@ $modulo = $_REQUEST['modulo'] ?? '';
   <script src="dist/js/demo.js"></script>
   <!-- DataTables -->
 
-  <!-- <script src="plugins/datatables/jquery.dataTables.js"></script>
+   <!--<script src="plugins/datatables/jquery.dataTables.js"></script>
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.js"></script> -->
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/select/1.4.0/js/dataTables.select.min.js"></script>
+<script src="https://cdn.datatables.net/datetime/1.1.2/js/dataTables.dateTime.min.js"></script>
+<script src="js/dataTables.editor.min.js"></script>
 
   <script>
     $(function() {

@@ -21,7 +21,12 @@ Editor::inst( $db, 'users' )
 		Field::inst( 'first_name' ),
 		Field::inst( 'last_name' ),
 		Field::inst( 'phone' ),
-		Field::inst( 'city' )
+		Field::inst( 'city' ),
+		Field::inst( 'site' )
+			->get(false)
+			->setValue(4) // New York, for the VIEW condition
 	)
+	->tryCatch(false)
+	->debug(true)
 	->process($_POST)
 	->json();

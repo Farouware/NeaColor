@@ -49,8 +49,23 @@ Editor::inst( $db, 'users_visits', array('user_id', 'visit_date') )
 	->leftJoin( 'sites', 'users_visits.site_id', '=', 'sites.id' )
 	->leftJoin( 'users', 'users_visits.user_id', '=', 'users.id' )
 	->validator( function ($editor, $action, $data) {
-		if ( $action == Editor::ACTION_EDIT ) {
-			// Detect duplicates
+		if ( $action == Editor::ACTION_CREATE ) {
+			// Detect duplicates on create
+			foreach ($data['data'] as $key => $values) {
+				// Are there any rows that conflict?
+				$any = $editor->db()->any( 'users_visits', function ($q) use ($values) {
+					$q->where( 'user_id', $values['users_visits']['user_id']);
+					$q->where( 'visit_date', $values['users_visits']['visit_date'] );
+				} );
+
+				// If there was a matching row, then report an error
+				if ( $any ) {
+					return 'This staff member is already busy that day.';
+				}
+			}
+		}
+		else if ( $action == Editor::ACTION_EDIT ) {
+			// Detect duplicates on edit
 			foreach ($data['data'] as $key => $values) {
 				// Get the row's primary key components
 				$pkey = $editor->pkeyToArray( $key );

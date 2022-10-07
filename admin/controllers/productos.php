@@ -23,7 +23,7 @@ Editor::inst( $db, 'productos' )
 	->fields(
 		Field::inst( 'nombre' )
 			->validator( Validate::notEmpty( ValidateOptions::inst()
-				->message( 'Debe de aingresar un nombre' )	
+				->message( 'Debe de ingresar un nombre' )	
 			) ),
 		Field::inst( 'precio' )
 			->validator( Validate::numeric() )
