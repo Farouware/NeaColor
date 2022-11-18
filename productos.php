@@ -13,6 +13,21 @@
   </head>
   <body>
        <div class="body container">
+        
+
+                    <!-- SEARCH FORM -->
+                    <form class="form-inline ml-3" action="index.php">
+                        <div class="input-group input-group-sm">
+                            <input class="form-control form-control-navbar bg-gray" type="search" placeholder="Buscar" aria-label="Search" name="nombre" value="<?php echo $_REQUEST['nombre'] ?? ''; ?>">
+                            <input type="hidden" name="modulo" value="productos">
+                            <div class="input-group-append">
+                                <button class="btn btn-navbar" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
             <div class="row row-cols-1 row-cols-md-12 g-1">
                 <div class="filtros container-sm col-3">
                     <div class="accordion">
@@ -49,21 +64,23 @@
                     
                 </div>
                 <?php
+                    include_once "admin/db_ecommerce.php";
+                    $con = mysqli_connect($host, $user, $pass, $db);
                     $where = " where 1=1 ";
-                    $nombre = mysqli_real_escape_string($con, $_REQUEST['nombre'] ?? '');
-                    if (empty($nombre) == false) {
-                        $where = "and nombre like '%" . $nombre . "%'";
+                    $nombre = mysqli_real_escape_string($con,$_REQUEST['nombre'] ?? '');
+                    if( empty($nombre) == false ){
+                        $where ="and nombre like '%" .$nombre. "%'";
                     }
                     $queryCuenta = "SELECT COUNT(*) as cuenta FROM productos  $where ;";
-                    $resCuenta = mysqli_query($con, $queryCuenta);
+                    $resCuenta = mysqli_query($con,$queryCuenta);
                     $rowCuenta = mysqli_fetch_assoc($resCuenta);
                     $totalRegistros = $rowCuenta['cuenta'];
 
                     $elementosPorPagina = 6;
 
-                    $totalPaginas = ceil($totalRegistros / $elementosPorPagina);
+                    $totalPaginas = ceil ($totalRegistros / $elementosPorPagina);
 
-                    $paginaSel = $_REQUEST['pagina'] ?? false;
+                    $paginaSel = $_REQUEST ['pagina'] ?? false;
 
                     if ($paginaSel == false) {
                         $inicioLimite = 0;
@@ -73,30 +90,30 @@
                     }
                     $limite = " limit $inicioLimite,$elementosPorPagina ";
                     $query = "SELECT 
-                                        p.id,
-                                        p.nombre,
-                                        p.precio,
-                                        p.existencia,
-                                        f.web_path
-                                        FROM
-                                        productos AS p
-                                        INNER JOIN productos_files AS pf ON pf.producto_id=p.id
-                                        INNER JOIN files AS f ON f.id=pf.file_id
-                                        $where
-                                        GROUP BY p.id
-                                        $limite
-                                        ";
-                    $res = mysqli_query($con, $query);
-                    while ($row = mysqli_fetch_assoc($res)) {
+                        p.id,
+                        p.nombre,
+                        p.precio,
+                        p.existencia,
+                        f.web_path
+                        FROM
+                        productos AS p
+                        INNER JOIN productos_files AS pf ON pf.producto_id=p.id
+                        INNER JOIN files AS f ON f.id=pf.file_id
+                        $where
+                        GROUP BY p.id
+                        $limite
+                        ";
+                    $res = mysqli_query ($con, $query);
+                    while ($row = mysqli_fetch_assoc ($res)) {
                 ?>
-                <div class="productos container col-9">
+              <div class="productos container col-9"> 
                     <div class="row row-cols-1 row-cols-md-3 g-1">
                           <div class="col">
                             <div class="card producto">
                                 <img class="card-img-top img-thumbnail" src="<?php echo $row['web_path'] ?>"  alt="">
                                 <div class="titulo_producto">
                                     <h4>
-                                       <?php echo $row['nombre'] ?><?php echo $row['nombre'] ?>
+                                       <?php echo $row['nombre'] ?>
                                     </h4>
                                 </div>
                                 <div class="stock_content">

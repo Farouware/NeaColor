@@ -22,6 +22,17 @@
                             </div>
                         </div>
                     </form>
+                    
+                    <!-- SEARCH FORM -->
+                    <form class="form-inline ml-3">
+                    <form class="form-inline ml-3" action="index.php" >
+                        <div class="input-group input-group-sm">
+                            <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+                            <input class="form-control form-control-navbar bg-gray" type="search" placeholder="Search" aria-label="Search" name="nombre" value="<?php echo $_REQUEST['nombre']??''; ?>" >
+                            <input type="hidden" name="modulo" value="productos">
+                            <div class="input-group-append">
+                                <button class="btn btn-navbar" type="submit">
+                                    <i class="fas fa-search"></i>
 
                     <!-- Right navbar links -->
                     <ul class="navbar-nav ml-auto">
