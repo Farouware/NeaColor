@@ -38,7 +38,7 @@ Editor::inst( $db, 'productos' )
             ->link( 'files.id', 'productos_files.file_id' )
             ->fields(
                 Field::inst( 'id' )
-                    ->upload( Upload::inst( $_SERVER['DOCUMENT_ROOT'].'/ecommerce/upload/__ID__.__EXTN__' )
+                    ->upload( Upload::inst( $_SERVER['DOCUMENT_ROOT'].'/NeaColor-main/upload/__ID__.__EXTN__' )
                         ->db( 'files', 'id', array(
                             'filename'    => Upload::DB_FILE_NAME,
                             'filesize'    => Upload::DB_FILE_SIZE,
